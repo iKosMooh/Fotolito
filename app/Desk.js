@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { vectorizeInBrowser, compressInBrowser } from './lib/clientVectorize';
 
 const BASE = {
   mode: 'color',
@@ -238,12 +239,11 @@ export default function Desk() {
 
   const centerCrop = () => setCrop({ x: 0.15, y: 0.1, w: 0.7, h: 0.8 });
 
-  async function convert() {
-    if (!file || busy) return;
-    setBusy(true);
-    setError(null);
-    setOptimized(null);
-
+  // Tenta vetorizar no navegador (Canvas + ImageTracer, sem servidor). Se o
+  // navegador não suportar algo, cai para /api/convert como reserva — é a
+  // única rota que pode falhar num host serverless como a Netlify, onde o
+  // sharp (binário nativo) é frágil.
+  async function convertViaApi() {
     const body = new FormData();
     body.append('image', file);
     body.append('colors', params.colors);
@@ -260,10 +260,28 @@ export default function Desk() {
     body.append('level', params.level);
     if (crop) body.append('crop', [crop.x, crop.y, crop.w, crop.h].map((n) => n.toFixed(4)).join(','));
 
+    const response = await fetch('/api/convert', { method: 'POST', body });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'A vetorização falhou.');
+    return data;
+  }
+
+  async function convert() {
+    if (!file || busy) return;
+    setBusy(true);
+    setError(null);
+    setOptimized(null);
+
     try {
-      const response = await fetch('/api/convert', { method: 'POST', body });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'A vetorização falhou.');
+      // Cede um frame antes do trabalho pesado, para o indicador "traçando" pintar.
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      let data;
+      try {
+        data = await vectorizeInBrowser(file, params, crop);
+      } catch (localErr) {
+        console.warn('[convert] vetorização local falhou, tentando /api/convert:', localErr);
+        data = await convertViaApi();
+      }
       setResult(data);
     } catch (err) {
       setError(err.message);
@@ -273,18 +291,29 @@ export default function Desk() {
     }
   }
 
+  async function packViaApi() {
+    const response = await fetch('/api/optimize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ svg: result.svg, precision: 1, merge: true }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'A compactação falhou.');
+    return data;
+  }
+
   async function pack() {
     if (!result || packing) return;
     setPacking(true);
     setError(null);
     try {
-      const response = await fetch('/api/optimize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ svg: result.svg, precision: 1, merge: true }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'A compactação falhou.');
+      let data;
+      try {
+        data = await compressInBrowser(result.svg, { precision: 1, merge: true });
+      } catch (localErr) {
+        console.warn('[pack] compactação local falhou, tentando /api/optimize:', localErr);
+        data = await packViaApi();
+      }
       setOptimized(data);
     } catch (err) {
       setError(err.message);
