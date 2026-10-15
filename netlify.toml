@@ -1,0 +1,12 @@
+# Remoção de fundo (/fundo): isolamento de origem libera multithread no ONNX Runtime (~6x mais rápido).
+# O worker servido de /_next/static também precisa de COEP, senão a página isolada o bloqueia.
+[[headers]]
+  for = "/fundo"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "credentialless"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cross-Origin-Embedder-Policy = "credentialless"

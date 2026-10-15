@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { takeHandoff } from './lib/handoff';
 import { vectorizeInBrowser, compressInBrowser } from './lib/clientVectorize';
 
 const BASE = {
@@ -176,6 +177,11 @@ export default function Desk() {
       return URL.createObjectURL(next);
     });
   }, []);
+
+  // imagem vinda de outra ferramenta (ex.: remoção de fundo)
+  useEffect(() => {
+    takeHandoff('desk').then((f) => f && accept(f));
+  }, [accept]);
 
   useEffect(() => {
     const onPaste = (event) => {

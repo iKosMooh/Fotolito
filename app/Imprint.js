@@ -37,7 +37,7 @@ export default function Imprint() {
 
       <div className="shell imprint-foot">
         <span>Fotolito · vetorizador por separação de cores</span>
-        <span>Sharp + ImageTracer.js · processado no servidor, nada fica salvo</span>
+        <span>Vetorizar · Remover fundo · Recorte livre — nada fica salvo</span>
         <span>© {new Date().getFullYear()} Caio Souza Solutions</span>
       </div>
     </footer>

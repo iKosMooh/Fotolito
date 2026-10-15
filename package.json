@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
     "imagetracerjs": "^1.2.6",
     "next": "^15.5.4",
     "react": "^19.1.1",

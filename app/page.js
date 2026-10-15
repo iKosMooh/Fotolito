@@ -1,5 +1,4 @@
 import Desk from './Desk';
-import Imprint from './Imprint';
 import PlateMark from './PlateMark';
 
 const STEPS = [
@@ -163,19 +162,21 @@ const FAULTS = [
 
 const ROADMAP = [
   {
+    tag: 'No ar',
+    title: 'Remoção de fundo',
+    href: '/fundo',
+    text: 'O assunto é isolado sozinho por um modelo que roda no navegador, com retoque à mão e envio direto para a vetorização.',
+  },
+  {
+    tag: 'No ar',
+    title: 'Recorte livre',
+    href: '/recorte',
+    text: 'Área com tamanho exato em px, várias imagens movidas e redimensionadas livremente, proporção travada e ajuste fino.',
+  },
+  {
     tag: 'Em planos',
     title: 'Upscaling',
     text: 'Aumentar a resolução de uma imagem pequena antes de traçar, para o vetorizador ter mais detalhe real para trabalhar.',
-  },
-  {
-    tag: 'Em planos',
-    title: 'Recorte livre',
-    text: 'O recorte atual já corta antes de vetorizar; a ideia é refinar isso, com proporção travada e ajuste fino da seleção.',
-  },
-  {
-    tag: 'Em planos',
-    title: 'Remoção de fundo',
-    text: 'Isolar o assunto automaticamente antes da vetorização, sem precisar arrastar a seleção à mão.',
   },
   {
     tag: 'Em planos',
@@ -187,45 +188,6 @@ const ROADMAP = [
 export default function Page() {
   return (
     <>
-      <header className="masthead">
-        <div className="shell masthead-in">
-          <a className="wordmark" href="#topo">
-            <span className="regmarks" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-            Fotolito
-          </a>
-          <nav>
-            <a href="#mesa">Mesa</a>
-            <a href="#processo">Processo</a>
-            <a href="#fotos" className="hide-sm">
-              Fotos
-            </a>
-            <a href="#falhas" className="hide-sm">
-              Onde falha
-            </a>
-            <a href="#origem" className="hide-sm">
-              Origem
-            </a>
-          </nav>
-
-          <a
-            className="byline"
-            href="https://caiodev.net.br/pt-BR"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Site de Caio Souza Solutions"
-          >
-            <img src="/caio-souza-solutions.png" alt="" width="640" height="165" />
-            <span>
-              <b>Caio Souza</b>
-              <em>caiodev.net.br</em>
-            </span>
-          </a>
-        </div>
-      </header>
 
       <main id="topo">
         <section className="shell hero">
@@ -375,12 +337,12 @@ export default function Page() {
             </p>
           </div>
           <div className="roadmap">
-            <p className="roadmap-label">A seguir na mesa</p>
+            <p className="roadmap-label">O que já está na mesa e o que vem a seguir</p>
             <div className="roadmap-grid">
               {ROADMAP.map((item) => (
-                <article className="road-item" key={item.title}>
+                <article className={item.href ? 'road-item is-live' : 'road-item'} key={item.title}>
                   <span className="tag">{item.tag}</span>
-                  <h3>{item.title}</h3>
+                  <h3>{item.href ? <a href={item.href}>{item.title} →</a> : item.title}</h3>
                   <p>{item.text}</p>
                 </article>
               ))}
@@ -389,7 +351,6 @@ export default function Page() {
         </section>
       </main>
 
-      <Imprint />
     </>
   );
 }

@@ -1,4 +1,6 @@
 import './globals.css';
+import Imprint from './Imprint';
+import SiteHeader from './SiteHeader';
 
 export const metadata = {
   title: 'Fotolito — vetorizador por separação de cores',
@@ -17,7 +19,11 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SiteHeader />
+        {children}
+        <Imprint />
+      </body>
     </html>
   );
 }
